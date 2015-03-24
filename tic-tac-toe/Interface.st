@@ -1,72 +1,72 @@
 Object subclass: Interface [
-  | inStream outStream | 
-  
-  Interface class >> in: inStream out: outStream [
+  | input output |
+
+  Interface class >> in: input out: output [
     ^self new
-      inStream: inStream;
-      outStream: outStream;
+      input: input;
+      output: output;
       yourself
   ]
-  
+
   "Getters/Setters"
-  inStream: value [ 
-    inStream := value 
+  input: value [
+    input := value
   ]
-  inStream [ 
-    ^inStream 
+  input [
+    ^input
   ]
-  
-  outStream: value [ 
-    outStream := value 
+
+  output: value [
+    output := value
   ]
-  
-  outStream [ 
-    ^outStream 
+
+  output [
+    ^output
   ]
-  
+
   "Class Method(s)"
   getMove: prompt [
-    | input x y |
-    outStream show: prompt.
-    ^inStream nextLine asInteger.
+    | input |
+    output show: prompt.
+    ^input nextLine asInteger.
   ]
-  
+
   printBoard: board [
-    outStream cr.
+    output cr.
     self printRowDivider.
     1 to: board size do: [
       self printRow board.
-      outStream cr.
+      output cr.
       self printRowDivider.
-      outStream cr.
+      output cr.
     ].
-    outStream cr.
+    output cr.
   ]
-  
+
   printRow: board [
-    outStream show: $|.
+    output show: $|.
     1 to: board size do: [ :column |
       1 to: board size do: [ :row |
-        outStream show: (board x: row y: column) asString, '|'. 
+        output show: (board x: row y: column) asString, '|'.
       ].
     ].
   ]
-  
+
   printRowDivider [
     1 to: 7 do: [
-      outStream show: '-'.
+      output show: '-'.
     ].
   ]
-  
+
   end: state [
-    outStream cr.
+    output cr.
     state winner isNil ifTrue: [
-      outStream show: 'Draw!'
+      output show: 'Draw!'
     ]
     ifFalse: [
-      outStream show: 'Congratulations ', state winner, ', you won!'      
+      output show: 'Congratulations ', state winner, ', you won!'
     ].
-    outStream cr.
+    output cr.
   ]
 
 ]
