@@ -42,30 +42,37 @@ Object subclass: Driver [
 
   "Main Driver"
   start [
-    | state answer |
-    self printBoard: board.
-    "Create new game state"
-    state := State new.
-    "Evaluate the game state with the current board"
-    state checkState: board.
-    state over ifTrue: [
-      self end: state.
-      [
+    | state answer newBoard |
+    "Assume player wants to continue with another game"
+    answer := 'Y'.
+    "Do not create a new board right away"
+    newBoard := false.
+    [
+      self printBoard: board.
+      "Create new game state"
+      state := State new.
+      "Evaluate the game state with the current board"
+      state checkState: board.
+      state over ifTrue: [
+        self end: state.
+        "Prompt user for another game"
         answer := (self continue at: 1) asString.
-        answer ~ '^(?:y|n|Y|N)$'
-      ] whileFalse: [ ].
-      
-      answer ~ '^(?:y|Y)$' ifTrue: [
-        board := Board new.
-        self start
+        "Assume new game"
+        newBoard := true.
+      ]
+      ifFalse: [
+        current makeMove: board.
+        self switchPlayers.
       ].
-    ]
-    ifFalse: [
-      current makeMove: board.
-      self switchPlayers.
-      "Start next game state"
-      self start
-    ]
+      
+      newBoard = true ifTrue: [
+        "Create new board for new game"
+        board := Board new.
+        newBoard := false.
+      ].
+
+      answer ~ '^(?:y|Y)$'
+    ] whileTrue: [ ]
   ]
   
   "Instance Methods"
@@ -96,27 +103,7 @@ Object subclass: Driver [
       ]
     ].
     Transcript cr.
-    
-    "Output player scores"
-    Transcript cr.
-    Transcript show: 'SCORES:'.
-    Transcript cr.
-    (current token = 'X') ifTrue: [
-      Transcript show: 'Human: '.
-    ]
-    ifFalse: [
-      Transcript show: 'Computer: '.
-    ].
-    Transcript show: current score asString.
-    Transcript cr.
-    (waiting token = 'X') ifTrue: [
-      Transcript show: 'Human: '.
-    ]
-    ifFalse: [
-      Transcript show: 'Computer: '.
-    ].
-    Transcript show: waiting score asString.
-    Transcript cr.
+    self printScore.
   ]
   
   continue [
@@ -158,6 +145,29 @@ Object subclass: Driver [
     1 to: (board size * 2) + 1 do: [ :i |
       Transcript show: '-'.
     ].
+  ]
+  
+  printScore [
+    "Output player scores"
+    Transcript cr.
+    Transcript show: '-SCORES------'.
+    Transcript cr.
+    (current token = 'X') ifTrue: [
+      Transcript show: 'Human    = '.
+    ]
+    ifFalse: [
+      Transcript show: 'Computer = '.
+    ].
+    Transcript show: current score asString.
+    Transcript cr.
+    (waiting token = 'X') ifTrue: [
+      Transcript show: 'Human    = '.
+    ]
+    ifFalse: [
+      Transcript show: 'Computer = '.
+    ].
+    Transcript show: waiting score asString.
+    Transcript cr.
   ]
 
 ]
