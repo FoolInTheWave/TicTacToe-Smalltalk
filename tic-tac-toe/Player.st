@@ -1,31 +1,37 @@
 Object subclass: Player [
-  | interface token |
+  | token score |
 
-  "Constructor"
-  Player class >> token: token [
-    ^self new
-      token: token;
-      yourself.
+  "Initialization"
+  Player class >> new [
+    | r |
+    r := super new.
+    r init.
+    ^r
   ]
-
-  "Getters/Setters"
+  
+  init [
+    token := 'X'.
+    score := 0
+  ]
+  
+  "Getters/Setters (Instance Methods)"
   token [
     ^token
   ]
 
-  token: value [
-    token := value
+  token: char [
+    token := char
+  ]
+  
+  score [
+    ^score
   ]
 
-  interface [
-    ^interface
+  score: number [
+    score := number
   ]
 
-  interface: value [
-    interface := value
-  ]
-
-  "Class Method(s)"
+  "Instance Methods"
   prompt [
     ^'Please enter your move (1-9): '
   ]
@@ -35,7 +41,7 @@ Object subclass: Player [
   ]
 
   makeMove: board prompt: prompt [
-    [board setCell: token index: (interface getMove: prompt)]
+    [board setCell: token index: (self getMove: prompt)]
     on: Error
     do: [
       self makeMove: board prompt: (self invalidPrompt)
@@ -44,6 +50,14 @@ Object subclass: Player [
 
   makeMove: board [
     self makeMove: board prompt: (self prompt).
+  ]
+  
+  getMove: prompt [
+    | input |
+    "Prompt user"
+    Transcript show: prompt.
+    "Get cell number from user"
+    ^stdin nextLine asInteger.
   ]
 
 ]

@@ -1,153 +1,175 @@
 Object subclass: Board [
-  | cells size player1 player2 empty |
-
-  Board class >> new: size player1: player1 player2: player2 empty: empty [
-    | cells |
+  | cells size player computer empty |
+  
+  "Initialization"
+  Board class >> new [
+    | r |
+    r := super new.
+    r init.
+    ^r
+  ]
+  
+  init [
+    size := 3.
+    player := 'X'.
+    computer := 'O'.
+    empty := ' '.
+    "Initialize cells to be empty"
     cells := OrderedCollection new.
     1 to: size * size do: [ :i |
       cells add: empty
     ].
-    ^self new
-      cells: cells;
-      size: size;
-      player1: player1;
-      player2: player2;
-      empty: empty;
-      yourself
   ]
 
-  copy [
-    ^super copy
-      cells: cells copy;
-      size: size;
-      player1: player1;
-      player2: player2;
-      empty: empty;
-      yourself
-  ]
-
-  "Getters/Setters"
+  "Getters/Setters (Instance Methods)"
   cells [
     ^cells
   ]
 
-  cells: value [
-    cells := value
+  cells: list [
+    cells := list
   ]
 
   size [
     ^size
   ]
 
-  size: value [
-    size := value
+  size: number [
+    size := number
   ]
 
-  player1 [
-    ^player1
+  player [
+    ^player
   ]
 
-  player1: value [
-    player1 := value
+  player: token [
+    player := token
   ]
 
-  player2 [
-    ^player2
+  computer [
+    ^computer
   ]
 
-  player2: value [
-    player2 := value
+  computer: token [
+    computer := token
   ]
 
   empty [
     ^empty
   ]
 
-  empty: value [
-    empty := value
+  empty: token [
+    empty := token
   ]
 
-  "Class Method(s)"
+  "Instance Methods"
   isFull [
-    ^cells conform: [ :cell | cell ~= empty ]
-  ]
-
-  otherPlayer: player [
-    (player = player1) ifTrue: [
-      ^player2
-    ] ifFalse: [
-      ^player1
+    "Check if all cells in board are marked"
+    ^cells conform: [ :cell | 
+      cell ~= empty 
     ]
   ]
 
-  row: rowIndex allEqualTo: comparator [
-    | columnIndex equal |
+  otherPlayer: player [
+    "Return the opposite player"
+    (player = player) ifTrue: [
+      ^computer
+    ] ifFalse: [
+      ^player
+    ]
+  ]
+
+  row: row allEqualTo: token [
+    | column equal |
+    "Check if entire row is marked by specified player"
     equal := true.
-    columnIndex := 1.
-    [equal & (columnIndex <= size)] whileTrue: [
-      equal := comparator = (self x: columnIndex y: rowIndex).
-      columnIndex := columnIndex + 1
+    column := 1.
+    "While equal is true and within board size"
+    [equal & (column <= size)] whileTrue: [
+      "Check if cell contents are equal to passed token"
+      equal := token = (self x: column y: row).
+      "Increment to next column in row"
+      column := column + 1
     ].
     ^equal
   ]
 
-  column: columnIndex allEqualTo: comparator [
-    | rowIndex equal |
+  column: column allEqualTo: token [
+    | row equal |
+    "Check if entire column is marked by specified player"
     equal := true.
-    rowIndex := 1.
-    [equal & (rowIndex <= size)] whileTrue: [
-      equal := comparator = (self x: columnIndex y: rowIndex).
-      rowIndex := rowIndex + 1
+    row := 1.
+    "While equal is true and within board size"
+    [equal & (row <= size)] whileTrue: [
+      "Check if cell contents are equal to passed token"
+      equal := token = (self x: column y: row).
+      "Increment to next row in column"
+      row := row + 1
     ].
     ^equal
   ]
 
-  diagonal1allEqualTo: comparator [
-    | index equal |
+  diagonal1allEqualTo: token [
+    | i equal |
+    "Check if first diagonal is marked by specified player"
     equal := true.
-    index := 1.
-    [equal & (index <= size)] whileTrue: [
-      equal := comparator = (self x: index y: index).
-      index := index + 1.
+    i := 1.
+    "While equal is true and within board size"
+    [equal & (i <= size)] whileTrue: [
+      "Check if cell contents are equal to passed token"
+      equal := token = (self x: i y: i).
+      "Increment to next cell in diagonal"
+      i := i + 1.
     ].
     ^equal
   ]
 
-  diagonal2allEqualTo: comparator [
-    | index equal |
+  diagonal2allEqualTo: token [
+    | i equal |
+    "Check if second diagonal is marked by specified player"
     equal := true.
-    index := 1.
-    [equal & (index <= size)] whileTrue: [
-      equal := comparator = (self x: index  y: (size - index + 1)).
-      index := index + 1.
+    i := 1.
+    "While equal is true and within board size"
+    [equal & (i <= size)] whileTrue: [
+      "Check if cell contents are equal to passed token"
+      equal := token = (self x: i  y: (size - i + 1)).
+      "Increment to next cell in diagonal"
+      i := i + 1.
     ].
     ^equal
   ]
 
-  toIndex: x y: y [
-    ^(y - 1 * size + x)
+  convertIndex: x y: y [
+    "Convert matrix index to one-dimensional index"
+    ^(x - 1 * size + y)
   ]
 
   x: x y: y [
-    ^cells at: (self toIndex: x y: y).
+    "Return cell contents at specified index"
+    ^cells at: (self convertIndex: x y: y).
   ]
 
   setCell: token index: index [
+    "Cell must be empty before it can be marked"
     (cells at: index) ~= empty ifTrue: [
       self error: 'Coordinate taken.'
     ].
     cells at: index put: token.
   ]
 
-  emptyCells [
-    | coords |
-    coords := OrderedCollection new.
-    1 to: (cells size) do: [ :index |
-      (cells at: index) = empty ifTrue: [
-        coords add: index
+  getEmptyCells [
+    | empties |
+    empties := OrderedCollection new.
+    "Loop through current board cells"
+    1 to: (cells size) do: [ :i |
+      "Check if cell is empty"
+      (cells at: i) = empty ifTrue: [
+        "Add index of empty cell to empty cell collection"
+        empties add: i
       ]
     ].
-    ^coords
+    "Return empty cell collection"
+    ^empties
   ]
 
 ]

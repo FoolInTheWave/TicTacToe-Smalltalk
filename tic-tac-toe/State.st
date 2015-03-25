@@ -1,75 +1,67 @@
 Object subclass: State [
   | over winner |
-
-  "Constructors"
-  State class >> board: board [
-
-    1 to: board size do: [ :index |
-      (board row: index allEqualTo: board player1) | (board column: index allEqualTo: board player1) ifTrue: [
-        ^self winner: board player1
-      ]
-      ifFalse: [
-        (board row: index allEqualTo: board player2) | (board column: index allEqualTo: board player2) ifTrue: [
-          ^self winner: board player2
-        ]
-      ]
-    ].
-
-    (board diagonal1allEqualTo: board player1) | (board diagonal2allEqualTo: board player1) ifTrue: [
-      ^self winner: board player1
-    ]
-    ifFalse: [
-      (board diagonal1allEqualTo: board player2) | (board diagonal2allEqualTo: board player2) ifTrue: [
-        ^self winner: board player2
-      ]
-    ].
-
-    board isFull ifTrue:[
-      ^self draw
-    ]
-    ifFalse: [
-      ^self playing
-    ]
-
+  
+  "Initialization"
+  State class >> new [
+    | r |
+    r := super new.
+    r init.
+    ^r
+  ]
+  
+  init [
+    "Assume the game state is valid"
+    over := false
   ]
 
-  State class >> winner: marker [
-    ^self new
-      winner: marker;
-      over: true;
-      yourself
-  ]
-
-  State class >> draw [
-    ^self new
-      over: true;
-      yourself
-  ]
-
-  State class >> playing [
-    ^self new
-      over: false;
-      yourself
-  ]
-
-  "Getters/Setters"
-  winner: value [
-    winner := value
-  ]
-
+  "Getters/Setters (Instance Methods)"
   winner [
-    ^ winner
+    ^winner
+  ]
+  
+  winner: player [
+    winner := player
+  ]
+  
+  over [
+    ^over
   ]
 
   over: value [
     over := value
   ]
 
-  over [
-    ^over
-  ]
+  "Instance Methods"
+  checkState: board [
+    1 to: board size do: [ :index |
+      "Check if the entirety of the current row or column is marked by the player"
+      (board row: index allEqualTo: board player) | (board column: index allEqualTo: board player) ifTrue: [
+        winner := board player
+      ]
+      ifFalse: [
+        "Check if the entirety of the current row or column is marked by the computer"
+        (board row: index allEqualTo: board computer) | (board column: index allEqualTo: board computer) ifTrue: [
+          winner := board computer
+        ]
+      ]
+    ].
 
-  "Class Method(s)"
+    "Check if the entirety of either diagonal is marked by the player"
+    (board diagonal1allEqualTo: board player) | (board diagonal2allEqualTo: board player) ifTrue: [
+      winner := board player
+    ]
+    ifFalse: [
+      "Check if the entirety of either diagonal is marked by the computer"
+      (board diagonal1allEqualTo: board computer) | (board diagonal2allEqualTo: board computer) ifTrue: [
+        winner := board computer
+      ]
+    ].
+
+    (board isFull) | (winner isNil = false) ifTrue:[
+      over := true
+    ]
+  ]
+  
   scoreFor: player [
     winner isNil ifTrue: [
       ^0
