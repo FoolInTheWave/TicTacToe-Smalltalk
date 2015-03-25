@@ -42,11 +42,9 @@ Object subclass: Driver [
 
   "Main Driver"
   start [
-    | state answer newBoard |
+    | state answer |
     "Assume player wants to continue with another game"
     answer := 'Y'.
-    "Do not create a new board right away"
-    newBoard := false.
     [
       self printBoard: board.
       "Create new game state"
@@ -57,18 +55,14 @@ Object subclass: Driver [
         self end: state.
         "Prompt user for another game"
         answer := (self continue at: 1) asString.
-        "Assume new game"
-        newBoard := true.
+        "Create new board if continuing with another game"
+        answer ~ '^(?:y|Y)$' ifTrue: [
+          board := Board new
+        ].
       ]
       ifFalse: [
         current makeMove: board.
         self switchPlayers.
-      ].
-      
-      newBoard = true ifTrue: [
-        "Create new board for new game"
-        board := Board new.
-        newBoard := false.
       ].
 
       answer ~ '^(?:y|Y)$'
