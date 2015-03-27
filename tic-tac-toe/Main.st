@@ -1,5 +1,5 @@
 Object subclass: Driver [
-  | current waiting board |
+  | current waiting board state continue |
   
   "Initialization"
   Driver class >> new [
@@ -10,8 +10,6 @@ Object subclass: Driver [
   ]
   
   init [
-    current := Player new.
-    waiting := Computer new.
     board := Board new.
   ]
 
@@ -20,53 +18,64 @@ Object subclass: Driver [
     ^current
   ]
 
-  current: value [
-    current := value
+  current: aPlayer [
+    current := aPlayer
   ]
 
   waiting [
     ^waiting
   ]
 
-  waiting: value [
-    waiting := value
+  waiting: aPlayer [
+    waiting := aPlayer
   ]
 
   board [
     ^board
   ]
 
-  board: value [
-    board := value
+  board: aBoard [
+    board := aBoard
+  ]
+  
+  state [
+    ^state
+  ]
+
+  state: aState [
+    state := aState
+  ]
+  
+  continue [
+    ^continue
+  ]
+  
+  continue: boolean [
+    continue := boolean.
   ]
 
   "Main Driver"
   start [
-    | state answer |
-    "Assume player wants to continue with another game"
-    answer := 'Y'.
-    [
-      self printBoard: board.
-      "Create new game state"
-      state := State new.
-      "Evaluate the game state with the current board"
-      state checkState: board.
-      state over ifTrue: [
-        self end: state.
-        "Prompt user for another game"
-        answer := (self continue at: 1) asString.
-        "Create new board if continuing with another game"
-        answer ~ '^(?:y|Y)$' ifTrue: [
-          board := Board new
-        ].
-      ]
-      ifFalse: [
-        current makeMove: board.
-        self switchPlayers.
+    "Create new game state"
+    state := State new.
+    "Evaluate the game state with the current board"
+    state checkState: board.
+    self printBoard: board.
+    "Check if game over"
+    state over ifTrue: [
+      "Print winner and scores"
+      self end: state.
+      "Prompt user for another game"
+      continue := self continuePrompt.
+      "Create new board if continue true"
+      continue ifTrue: [
+        board := Board new
       ].
-
-      answer ~ '^(?:y|Y)$'
-    ] whileTrue: [ ]
+    ]
+    ifFalse: [
+      current makeMove: board.
+      self switchPlayers.
+    ].
   ]
   
   "Instance Methods"
@@ -100,12 +109,20 @@ Object subclass: Driver [
     self printScore.
   ]
   
-  continue [
+  continuePrompt [
+    | answer |
     "Prompt user"
     Transcript cr.
     Transcript show: 'Would you like to continue (y/n)?: '.
     "Get answer from user"
-    ^stdin nextLine.
+    answer := (stdin nextLine at: 1) asString.
+    "Compare answer with regex"
+    answer ~ '^(?:y|Y)$' ifTrue: [
+      ^true
+    ]
+    ifFalse: [
+      ^false
+    ].
   ]
   
   switchPlayers [
@@ -124,6 +141,11 @@ Object subclass: Driver [
       Transcript cr.
       self printRowDivider: board.
       Transcript cr.
+    ].
+    (state over = false) & (current token = 'O') ifTrue: [
+      Transcript cr.
+      Transcript show: 'Computer''s move:'.
+      Transcript cr
     ].
     Transcript cr.
   ]
@@ -536,4 +558,27 @@ Object subclass: Computer [
 
 "ENTRY POINT"
 driver := Driver new.
-driver start.
+firstPlayer := Player new.
+secondPlayer := Computer new.
+tempPlayer := Object new.
+
+"Set game players"
+driver current: firstPlayer.
+driver waiting: secondPlayer.
+
+"Assume player wants to continue with another game"
+driver continue: true.
+"Pseudo do-while loop"
+[
+  driver start. 
+  (driver state over) & (driver continue) ifTrue: [
+    "Switch starting player"
+    tempPlayer := firstPlayer.
+    firstPlayer := secondPlayer.
+    secondPlayer := tempPlayer.
+    driver current: firstPlayer.
+    driver waiting: secondPlayer
+  ].
+  "Do-while conditional statement"
+  driver continue
+] whileTrue: [ ]
