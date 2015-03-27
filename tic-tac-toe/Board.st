@@ -1,14 +1,32 @@
+"**
+  Author: Caleb Miller
+  Date: 03-27-2015
+
+  This class represents a tic tac toe board. An OrderedCollection
+  object stores board data, but in a single dimensioned collection.
+  The board can be thought of as follows:
+
+  -------
+  |1|2|3|
+  -------
+  |4|5|6|
+  -------
+  |7|8|9|
+  -------
+**"
 Object subclass: Board [
   | cells size player computer empty |
-  
-  "Initialization"
+
+  "**
+    Initialization
+  **"
   Board class >> new [
     | r |
     r := super new.
     r init.
     ^r
   ]
-  
+
   init [
     size := 3.
     player := 'X'.
@@ -21,7 +39,9 @@ Object subclass: Board [
     ].
   ]
 
-  "Getters/Setters (Instance Methods)"
+  "**
+    Getters/Setters
+  **"
   cells [
     ^cells
   ]
@@ -62,93 +82,135 @@ Object subclass: Board [
     empty := token
   ]
 
-  "Instance Methods"
-  isFull [
-    "Check if all cells in board are marked"
-    ^cells conform: [ :cell | 
-      cell ~= empty 
-    ]
-  ]
+  "**
+    Author: Caleb Miller
+    Date: 03-27-2015
 
-  otherPlayer: player [
-    "Return the opposite player"
-    (player = player) ifTrue: [
-      ^computer
-    ] ifFalse: [
-      ^player
-    ]
-  ]
+    This method checks if the row indicated by the passed index
+    is marked completely by a specified token.
 
-  row: row allEqualTo: token [
-    | column equal |
-    "Check if entire row is marked by specified player"
+    Input:
+      index - A numeric value indicating the row to check.
+      token - The player mark to check against.
+
+    Output:
+      A boolean value indicating if the entire row is marked by
+      the specified token.
+  **"
+  row: index isEqualTo: token [
+    | currCell rowEnd equal |
     equal := true.
-    column := 1.
-    "While equal is true and within board size"
-    [equal & (column <= size)] whileTrue: [
+    currCell := index * size - (size - 1).
+    rowEnd := currCell + size - 1.
+    "While equal is true and within row size"
+    [equal & (currCell <= rowEnd)] whileTrue: [
       "Check if cell contents are equal to passed token"
-      equal := token = (self x: column y: row).
+      equal := token = (cells at: currCell).
       "Increment to next column in row"
-      column := column + 1
+      currCell := currCell + 1.
     ].
     ^equal
   ]
 
-  column: column allEqualTo: token [
-    | row equal |
-    "Check if entire column is marked by specified player"
+  "**
+    Author: Caleb Miller
+    Date: 03-27-2015
+
+    This method checks if the column indicated by the passed index
+    is marked completely by a specified token.
+
+    Input:
+      index - A numeric value indicating the column to check.
+      token - The player mark to check against.
+
+    Output:
+      A boolean value indicating if the entire column is marked by
+      the specified token.
+  **"
+  column: index isEqualTo: token [
+    | currCell colEnd equal |
     equal := true.
-    row := 1.
+    currCell := index.
+    colEnd := index + (size * (size - 1)).
     "While equal is true and within board size"
-    [equal & (row <= size)] whileTrue: [
+    [equal & (currCell <= colEnd)] whileTrue: [
       "Check if cell contents are equal to passed token"
-      equal := token = (self x: column y: row).
+      equal := token = (cells at: currCell).
       "Increment to next row in column"
-      row := row + 1
+      currCell := currCell + size.
     ].
     ^equal
   ]
 
-  diagonal1allEqualTo: token [
-    | i equal |
-    "Check if first diagonal is marked by specified player"
+  "**
+    Author: Caleb Miller
+    Date: 03-27-2015
+
+    This method checks if the first diagonal on the board is marked
+    completely by a specified token.
+
+    Input:
+      token - The player mark to check against.
+
+    Output:
+      A boolean value indicating if the entire diagonal is marked by
+      the specified token.
+  **"
+  firstDiagonalEqualTo: token [
+    | currCell equal |
     equal := true.
-    i := 1.
+    currCell := 1.
     "While equal is true and within board size"
-    [equal & (i <= size)] whileTrue: [
+    [equal & (currCell <= (size * size))] whileTrue: [
       "Check if cell contents are equal to passed token"
-      equal := token = (self x: i y: i).
+      equal := token = (cells at: currCell).
       "Increment to next cell in diagonal"
-      i := i + 1.
+      currCell := currCell + size + 1.
     ].
     ^equal
   ]
 
-  diagonal2allEqualTo: token [
-    | i equal |
+  "**
+    Author: Caleb Miller
+    Date: 03-27-2015
+
+    This method checks if the second diagonal on the board is marked
+    completely by a specified token.
+
+    Input:
+      token - The player mark to check against.
+
+    Output:
+      A boolean value indicating if the entire diagonal is marked by
+      the specified token.
+  **"
+  secondDiagonalEqualTo: token [
+    | currCell equal |
     "Check if second diagonal is marked by specified player"
     equal := true.
-    i := 1.
+    currCell := size.
     "While equal is true and within board size"
-    [equal & (i <= size)] whileTrue: [
+    [equal & (currCell <= (size * size - 2))] whileTrue: [
       "Check if cell contents are equal to passed token"
-      equal := token = (self x: i  y: (size - i + 1)).
+      equal := token = (cells at: currCell).
       "Increment to next cell in diagonal"
-      i := i + 1.
+      currCell := currCell + size - 1.
     ].
     ^equal
   ]
 
-  convertIndex: x y: y [
-    "Convert matrix index to one-dimensional index"
-    ^(x - 1 * size + y)
-  ]
+  "**
+    Author: Caleb Miller
+    Date: 03-27-2015
 
-  x: x y: y [
-    "Return cell contents at specified index"
-    ^cells at: (self convertIndex: x y: y).
-  ]
+    This method sets the cell value to the player token. The
+    collection representing the board behind the scenes stores the
+    player token.
 
+    Input:
+      token - The token to mark the cell with.
+      index - The cell to mark.
+  **"
   setCell: token index: index [
     "Cell must be empty before it can be marked"
     (cells at: index) ~= empty ifTrue: [
@@ -157,6 +219,34 @@ Object subclass: Board [
     cells at: index put: token.
   ]
 
+  "**
+    Author: Caleb Miller
+    Date: 03-27-2015
+
+    This method checks if all of the cells in the board are marked.
+
+    Output:
+      A boolean value indicating if all of the cells in the board
+      have been marked.
+  **"
+  isFull [
+    ^cells conform: [ :cell |
+      cell ~= empty
+    ]
+  ]
+
+  "**
+    Author: Caleb Miller
+    Date: 03-27-2015
+
+    This method returns all empty cells in the board as a collection,
+    with each value in the collection representing the index of the
+    empty cell on the board.
+
+    Output:
+      An OrderedCollection containing the indexes of all empty cells
+      on the board.
+  **"
   getEmptyCells [
     | empties |
     empties := OrderedCollection new.

@@ -1,20 +1,30 @@
+"**
+  Author: Caleb Miller
+  Date: 03-27-2015
+
+  This is the class that represents a computer player.
+**"
 Object subclass: Computer [
   | token score |
 
-  "Initialization"
+  "**
+    Initialization
+  **"
   Computer class >> new [
     | r |
     r := super new.
     r init.
     ^r
   ]
-  
+
   init [
     token := 'O'.
     score := 0
   ]
-  
-  "Getters/Setters (Instance Methods)"
+
+  "**
+    Getters/Setters
+  **"
   token [
     ^token
   ]
@@ -22,7 +32,7 @@ Object subclass: Computer [
   token: char [
     token := char
   ]
-  
+
   score [
     ^score
   ]
@@ -31,7 +41,13 @@ Object subclass: Computer [
     score := number
   ]
 
-  "Instance Methods"
+  "**
+    Author: Caleb Miller
+    Date: 03-27-2015
+
+    This method has the computer marking a random empty cell on the
+    board.
+  **"
   makeMove: board [
     | generator cell index |
     "Initialize random number generator"

@@ -1,19 +1,50 @@
+"**
+  Author: Caleb Miller
+  Date: 03-27-2015
+  Course: CS 451 15/WI Programming Language Concepts
+
+  Purpose:
+    This program is a command line based tic tac toe game between a
+    human player and a computer player. The program prompts the
+    human player for a move and then the computer makes a move.
+    After a game ends the player is prompted to play again, and
+    scores are stored throughout the games. To run this program you
+    must have GNU Smalltalk installed. Execute the program with this
+    command:
+
+    gst -g Main.st
+
+    If you omit the -g flag garbage collection messages will appear
+    on the command line along with program output.
+**"
+
+"**
+  Author: Caleb Miller
+  Date: 03-27-2015
+
+  This is the class that drives the tic tac toe game. Methods for
+  printing the board to output are defined here.
+**"
 Object subclass: Driver [
   | current waiting board state continue |
-  
-  "Initialization"
+
+  "**
+    Initialization
+  **"
   Driver class >> new [
     | r |
     r := super new.
     r init.
     ^r
   ]
-  
+
   init [
     board := Board new.
   ]
 
-  "Getters/Setters (Instance Methods)"
+  "**
+    Getters/Setters
+  **"
   current [
     ^current
   ]
@@ -37,7 +68,7 @@ Object subclass: Driver [
   board: aBoard [
     board := aBoard
   ]
-  
+
   state [
     ^state
   ]
@@ -45,16 +76,24 @@ Object subclass: Driver [
   state: aState [
     state := aState
   ]
-  
+
   continue [
     ^continue
   ]
-  
+
   continue: boolean [
     continue := boolean.
   ]
 
-  "Main Driver"
+  "**
+    Author: Caleb Miller
+    Date: 03-27-2015
+
+    This method checks the current state of the game by passing the
+    board object to a newly created state object. The state of the
+    game is returned. If the state is over then the user is prompted
+    for another game.
+  **"
   start [
     "Create new game state"
     state := State new.
@@ -64,7 +103,7 @@ Object subclass: Driver [
     "Check if game over"
     state over ifTrue: [
       "Print winner and scores"
-      self end: state.
+      self end.
       "Prompt user for another game"
       continue := self continuePrompt.
       "Create new board if continue true"
@@ -77,9 +116,15 @@ Object subclass: Driver [
       self switchPlayers.
     ].
   ]
-  
-  "Instance Methods"
-  end: state [
+
+  "**
+    Author: Caleb Miller
+    Date: 03-27-2015
+
+    This method prints the outcome of the game along with the player
+    scores.
+  **"
+  end [
     state winner isNil ifTrue: [
       Transcript show: 'It''s a Cat''s Game!'.
     ]
@@ -108,7 +153,19 @@ Object subclass: Driver [
     Transcript cr.
     self printScore.
   ]
-  
+
+  "**
+    Author: Caleb Miller
+    Date: 03-27-2015
+
+    This method writes a prompt to output using the Transcript
+    object asking whether or not the player wishes to continue.
+    A regex is used to compare the user response to valid input.
+
+    Output:
+      A boolean value indicating if the user wishes to continue with
+      another game.
+  **"
   continuePrompt [
     | answer |
     "Prompt user"
@@ -124,7 +181,14 @@ Object subclass: Driver [
       ^false
     ].
   ]
-  
+
+  "**
+    Author: Caleb Miller
+    Date: 03-27-2015
+
+    This method switches the object references between the current
+    and waiting instance variables.
+  **"
   switchPlayers [
     | temp |
     "Switch players"
@@ -132,12 +196,22 @@ Object subclass: Driver [
     current := waiting.
     waiting := temp.
   ]
-  
+
+  "**
+    Author: Caleb Miller
+    Date: 03-27-2015
+
+    This method print the tic tac toe board to output using the
+    Transcript object.
+
+    Input:
+      board - A Board object.
+  **"
   printBoard: board [
     self printRowDivider: board.
     Transcript cr.
-    1 to: board size do: [ :i |
-      self printRow: board row: i.
+    1 to: board size do: [ :index |
+      self printRow: board row: index.
       Transcript cr.
       self printRowDivider: board.
       Transcript cr.
@@ -150,19 +224,51 @@ Object subclass: Driver [
     Transcript cr.
   ]
 
-  printRow: board row: row [
+  "**
+    Author: Caleb Miller
+    Date: 03-27-2015
+
+    This method prints a row of the board to output.
+
+    Input:
+      board - A Board object.
+      index - A numeric value representing the row to print.
+  **"
+  printRow: board row: index [
+    | currCell rowEnd |
+    currCell := index * board size - (board size - 1).
+    rowEnd := currCell + board size - 1.
     Transcript show: '|'.
-    1 to: board size do: [ :column |
-      Transcript show: (board x: row y: column) asString, '|'.
+    [currCell <= rowEnd] whileTrue: [
+      Transcript show: (board cells at: currCell) asString, '|'.
+      currCell := currCell + 1.
     ].
   ]
 
+  "**
+    Author: Caleb Miller
+    Date: 03-27-2015
+
+    This method prints a board row divider to output.
+
+    Input:
+      board - A Board object.
+  **"
   printRowDivider: board [
     1 to: (board size * 2) + 1 do: [ :i |
       Transcript show: '-'.
     ].
   ]
-  
+
+  "**
+    Author: Caleb Miller
+    Date: 03-27-2015
+
+    This method checks the current state of the game by passing the
+    board object to a newly created state object. The state of the
+    game is returned. If the state is over then the user is prompted
+    for another game.
+  **"
   printScore [
     "Output player scores"
     Transcript cr.
@@ -188,17 +294,35 @@ Object subclass: Driver [
 
 ]
 
+"**
+  Author: Caleb Miller
+  Date: 03-27-2015
+
+  This class represents a tic tac toe board. An OrderedCollection
+  object stores board data, but in a single dimensioned collection.
+  The board can be thought of as follows:
+
+  -------
+  |1|2|3|
+  -------
+  |4|5|6|
+  -------
+  |7|8|9|
+  -------
+**"
 Object subclass: Board [
   | cells size player computer empty |
-  
-  "Initialization"
+
+  "**
+    Initialization
+  **"
   Board class >> new [
     | r |
     r := super new.
     r init.
     ^r
   ]
-  
+
   init [
     size := 3.
     player := 'X'.
@@ -211,7 +335,9 @@ Object subclass: Board [
     ].
   ]
 
-  "Getters/Setters (Instance Methods)"
+  "**
+    Getters/Setters
+  **"
   cells [
     ^cells
   ]
@@ -252,93 +378,135 @@ Object subclass: Board [
     empty := token
   ]
 
-  "Instance Methods"
-  isFull [
-    "Check if all cells in board are marked"
-    ^cells conform: [ :cell | 
-      cell ~= empty 
-    ]
-  ]
+  "**
+    Author: Caleb Miller
+    Date: 03-27-2015
 
-  otherPlayer: player [
-    "Return the opposite player"
-    (player = player) ifTrue: [
-      ^computer
-    ] ifFalse: [
-      ^player
-    ]
-  ]
+    This method checks if the row indicated by the passed index
+    is marked completely by a specified token.
 
-  row: row allEqualTo: token [
-    | column equal |
-    "Check if entire row is marked by specified player"
+    Input:
+      index - A numeric value indicating the row to check.
+      token - The player mark to check against.
+
+    Output:
+      A boolean value indicating if the entire row is marked by
+      the specified token.
+  **"
+  row: index isEqualTo: token [
+    | currCell rowEnd equal |
     equal := true.
-    column := 1.
-    "While equal is true and within board size"
-    [equal & (column <= size)] whileTrue: [
+    currCell := index * size - (size - 1).
+    rowEnd := currCell + size - 1.
+    "While equal is true and within row size"
+    [equal & (currCell <= rowEnd)] whileTrue: [
       "Check if cell contents are equal to passed token"
-      equal := token = (self x: column y: row).
+      equal := token = (cells at: currCell).
       "Increment to next column in row"
-      column := column + 1
+      currCell := currCell + 1.
     ].
     ^equal
   ]
 
-  column: column allEqualTo: token [
-    | row equal |
-    "Check if entire column is marked by specified player"
+  "**
+    Author: Caleb Miller
+    Date: 03-27-2015
+
+    This method checks if the column indicated by the passed index
+    is marked completely by a specified token.
+
+    Input:
+      index - A numeric value indicating the column to check.
+      token - The player mark to check against.
+
+    Output:
+      A boolean value indicating if the entire column is marked by
+      the specified token.
+  **"
+  column: index isEqualTo: token [
+    | currCell colEnd equal |
     equal := true.
-    row := 1.
+    currCell := index.
+    colEnd := index + (size * (size - 1)).
     "While equal is true and within board size"
-    [equal & (row <= size)] whileTrue: [
+    [equal & (currCell <= colEnd)] whileTrue: [
       "Check if cell contents are equal to passed token"
-      equal := token = (self x: column y: row).
+      equal := token = (cells at: currCell).
       "Increment to next row in column"
-      row := row + 1
+      currCell := currCell + size.
     ].
     ^equal
   ]
 
-  diagonal1allEqualTo: token [
-    | i equal |
-    "Check if first diagonal is marked by specified player"
+  "**
+    Author: Caleb Miller
+    Date: 03-27-2015
+
+    This method checks if the first diagonal on the board is marked
+    completely by a specified token.
+
+    Input:
+      token - The player mark to check against.
+
+    Output:
+      A boolean value indicating if the entire diagonal is marked by
+      the specified token.
+  **"
+  firstDiagonalEqualTo: token [
+    | currCell equal |
     equal := true.
-    i := 1.
+    currCell := 1.
     "While equal is true and within board size"
-    [equal & (i <= size)] whileTrue: [
+    [equal & (currCell <= (size * size))] whileTrue: [
       "Check if cell contents are equal to passed token"
-      equal := token = (self x: i y: i).
+      equal := token = (cells at: currCell).
       "Increment to next cell in diagonal"
-      i := i + 1.
+      currCell := currCell + size + 1.
     ].
     ^equal
   ]
 
-  diagonal2allEqualTo: token [
-    | i equal |
+  "**
+    Author: Caleb Miller
+    Date: 03-27-2015
+
+    This method checks if the second diagonal on the board is marked
+    completely by a specified token.
+
+    Input:
+      token - The player mark to check against.
+
+    Output:
+      A boolean value indicating if the entire diagonal is marked by
+      the specified token.
+  **"
+  secondDiagonalEqualTo: token [
+    | currCell equal |
     "Check if second diagonal is marked by specified player"
     equal := true.
-    i := 1.
+    currCell := size.
     "While equal is true and within board size"
-    [equal & (i <= size)] whileTrue: [
+    [equal & (currCell <= (size * size - 2))] whileTrue: [
       "Check if cell contents are equal to passed token"
-      equal := token = (self x: i  y: (size - i + 1)).
+      equal := token = (cells at: currCell).
       "Increment to next cell in diagonal"
-      i := i + 1.
+      currCell := currCell + size - 1.
     ].
     ^equal
   ]
 
-  convertIndex: x y: y [
-    "Convert matrix index to one-dimensional index"
-    ^(x - 1 * size + y)
-  ]
+  "**
+    Author: Caleb Miller
+    Date: 03-27-2015
 
-  x: x y: y [
-    "Return cell contents at specified index"
-    ^cells at: (self convertIndex: x y: y).
-  ]
+    This method sets the cell value to the player token. The
+    collection representing the board behind the scenes stores the
+    player token.
 
+    Input:
+      token - The token to mark the cell with.
+      index - The cell to mark.
+  **"
   setCell: token index: index [
     "Cell must be empty before it can be marked"
     (cells at: index) ~= empty ifTrue: [
@@ -347,6 +515,34 @@ Object subclass: Board [
     cells at: index put: token.
   ]
 
+  "**
+    Author: Caleb Miller
+    Date: 03-27-2015
+
+    This method checks if all of the cells in the board are marked.
+
+    Output:
+      A boolean value indicating if all of the cells in the board
+      have been marked.
+  **"
+  isFull [
+    ^cells conform: [ :cell |
+      cell ~= empty
+    ]
+  ]
+
+  "**
+    Author: Caleb Miller
+    Date: 03-27-2015
+
+    This method returns all empty cells in the board as a collection,
+    with each value in the collection representing the index of the
+    empty cell on the board.
+
+    Output:
+      An OrderedCollection containing the indexes of all empty cells
+      on the board.
+  **"
   getEmptyCells [
     | empties |
     empties := OrderedCollection new.
@@ -364,31 +560,42 @@ Object subclass: Board [
 
 ]
 
+"**
+  Author: Caleb Miller
+  Date: 03-27-2015
+
+  This is the class that checks the board to return the current game
+  state.
+**"
 Object subclass: State [
   | over winner |
-  
-  "Initialization"
+
+  "**
+    Initialization
+  **"
   State class >> new [
     | r |
     r := super new.
     r init.
     ^r
   ]
-  
+
   init [
     "Assume the game state is valid"
     over := false
   ]
 
-  "Getters/Setters (Instance Methods)"
+  "**
+    Getters/Setters
+  **"
   winner [
     ^winner
   ]
-  
+
   winner: player [
     winner := player
   ]
-  
+
   over [
     ^over
   ]
@@ -397,28 +604,42 @@ Object subclass: State [
     over := value
   ]
 
-  "Instance Methods"
+  "**
+    Author: Caleb Miller
+    Date: 03-27-2015
+
+    This method checks if each row, column, or diagonal has been
+    completely marked by a player. The outcome of this check alters
+    the game state.
+
+    Input:
+      board - A Board object to check.
+  **"
   checkState: board [
     1 to: board size do: [ :index |
-      "Check if the entirety of the current row or column is marked by the player"
-      (board row: index allEqualTo: board player) | (board column: index allEqualTo: board player) ifTrue: [
+      "Check if the current row is completely marked by the human"
+      (board row: index isEqualTo: board player) |
+      (board column: index isEqualTo: board player) ifTrue: [
         winner := board player
       ]
       ifFalse: [
-        "Check if the entirety of the current row or column is marked by the computer"
-        (board row: index allEqualTo: board computer) | (board column: index allEqualTo: board computer) ifTrue: [
+        "Check if the current column is completely marked by the computer"
+        (board row: index isEqualTo: board computer) |
+        (board column: index isEqualTo: board computer) ifTrue: [
           winner := board computer
         ]
       ]
     ].
 
-    "Check if the entirety of either diagonal is marked by the player"
-    (board diagonal1allEqualTo: board player) | (board diagonal2allEqualTo: board player) ifTrue: [
+    "Check if either diagonal is completely marked by the human"
+    (board firstDiagonalEqualTo: board player) |
+    (board secondDiagonalEqualTo: board player) ifTrue: [
       winner := board player
     ]
     ifFalse: [
-      "Check if the entirety of either diagonal is marked by the computer"
-      (board diagonal1allEqualTo: board computer) | (board diagonal2allEqualTo: board computer) ifTrue: [
+      "Check if either diagonal is completely marked by the computer"
+      (board firstDiagonalEqualTo: board computer) |
+      (board secondDiagonalEqualTo: board computer) ifTrue: [
         winner := board computer
       ]
     ].
@@ -427,40 +648,36 @@ Object subclass: State [
       over := true
     ]
   ]
-  
-  scoreFor: player [
-    winner isNil ifTrue: [
-      ^0
-    ]
-    ifFalse: [
-      (player = winner) ifTrue: [
-        ^1000
-      ]
-      ifFalse: [
-        ^-1000
-      ]
-    ]
-  ]
 
 ]
 
+"**
+  Author: Caleb Miller
+  Date: 03-27-2015
+
+  This is the class that represents a human player.
+**"
 Object subclass: Player [
   | token score |
 
-  "Initialization"
+  "**
+    Initialization
+  **"
   Player class >> new [
     | r |
     r := super new.
     r init.
     ^r
   ]
-  
+
   init [
     token := 'X'.
-    score := 0
+    score := 0.
   ]
-  
-  "Getters/Setters (Instance Methods)"
+
+  "**
+    Getters/Setters
+  **"
   token [
     ^token
   ]
@@ -468,7 +685,7 @@ Object subclass: Player [
   token: char [
     token := char
   ]
-  
+
   score [
     ^score
   ]
@@ -477,54 +694,73 @@ Object subclass: Player [
     score := number
   ]
 
-  "Instance Methods"
-  prompt [
-    ^'Please enter your move (1-9): '
-  ]
+  "**
+    Author: Caleb Miller
+    Date: 03-27-2015
 
-  invalidPrompt [
-    ^'Cell taken or invalid input. Please enter your move (1-9): '
-  ]
+    This method marks a cell specified by the player. Error handling
+    is defined for invalid input.
 
-  makeMove: board prompt: prompt [
-    [board setCell: token index: (self getMove: prompt)]
+    Input:
+      board - A Board object.
+  **"
+  makeMove: board [
+    [board setCell: token index: (self getMove)]
     on: Error
     do: [
-      self makeMove: board prompt: (self invalidPrompt)
+      Transcript show: 'Cell taken or invalid input.'.
+      Transcript cr.
+      self makeMove: board
     ]
   ]
 
-  makeMove: board [
-    self makeMove: board prompt: (self prompt).
-  ]
-  
-  getMove: prompt [
+  "**
+    Author: Caleb Miller
+    Date: 03-27-2015
+
+    This method gets the cell to mark by reading player input from
+    stdin.
+
+    Output:
+      An integer is returned containing the player's desired move.
+  **"
+  getMove [
     | input |
     "Prompt user"
-    Transcript show: prompt.
+    Transcript show: 'Please enter your move (1-9): '.
     "Get cell number from user"
     ^stdin nextLine asInteger.
   ]
 
 ]
 
+"**
+  Author: Caleb Miller
+  Date: 03-27-2015
+
+  This is the class that represents a computer player.
+**"
 Object subclass: Computer [
   | token score |
 
-  "Initialization"
+  "**
+    Initialization
+  **"
   Computer class >> new [
     | r |
     r := super new.
     r init.
     ^r
   ]
-  
+
   init [
     token := 'O'.
     score := 0
   ]
-  
-  "Getters/Setters (Instance Methods)"
+
+  "**
+    Getters/Setters
+  **"
   token [
     ^token
   ]
@@ -532,7 +768,7 @@ Object subclass: Computer [
   token: char [
     token := char
   ]
-  
+
   score [
     ^score
   ]
@@ -541,7 +777,13 @@ Object subclass: Computer [
     score := number
   ]
 
-  "Instance Methods"
+  "**
+    Author: Caleb Miller
+    Date: 03-27-2015
+
+    This method has the computer marking a random empty cell on the
+    board.
+  **"
   makeMove: board [
     | generator cell index |
     "Initialize random number generator"
@@ -556,7 +798,9 @@ Object subclass: Computer [
 
 ]
 
-"ENTRY POINT"
+"**
+  ENTRY POINT
+**"
 driver := Driver new.
 firstPlayer := Player new.
 secondPlayer := Computer new.
@@ -570,7 +814,7 @@ driver waiting: secondPlayer.
 driver continue: true.
 "Pseudo do-while loop"
 [
-  driver start. 
+  driver start.
   (driver state over) & (driver continue) ifTrue: [
     "Switch starting player"
     tempPlayer := firstPlayer.
