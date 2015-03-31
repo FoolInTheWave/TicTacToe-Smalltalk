@@ -26,7 +26,7 @@
   printing the board to output are defined here.
 **"
 Object subclass: Driver [
-  | current waiting board state continue |
+  | current waiting board state continue draw |
 
   "**
     Initialization
@@ -40,6 +40,7 @@ Object subclass: Driver [
 
   init [
     board := Board new.
+    draw := 0
   ]
 
   "**
@@ -84,6 +85,14 @@ Object subclass: Driver [
   continue: boolean [
     continue := boolean.
   ]
+  
+  draw [
+    ^draw
+  ]
+
+  draw: int [
+    draw := int.
+  ]
 
   "**
     Author: Caleb Miller
@@ -127,6 +136,7 @@ Object subclass: Driver [
   end [
     state winner isNil ifTrue: [
       Transcript show: 'It''s a Cat''s Game!'.
+      draw := draw + 1.
     ]
     ifFalse: [
       (state winner = 'X') ifTrue: [
@@ -219,7 +229,6 @@ Object subclass: Driver [
     (state over = false) & (current token = 'O') ifTrue: [
       Transcript cr.
       Transcript show: 'Computer''s move:'.
-      Transcript cr
     ].
     Transcript cr.
   ]
@@ -289,6 +298,9 @@ Object subclass: Driver [
       Transcript show: 'Computer = '.
     ].
     Transcript show: waiting score asString.
+    Transcript cr.
+    Transcript show: 'Draw     = '.
+    Transcript show: draw asString.
     Transcript cr.
   ]
 
@@ -600,8 +612,8 @@ Object subclass: State [
     ^over
   ]
 
-  over: value [
-    over := value
+  over: boolean [
+    over := boolean
   ]
 
   "**

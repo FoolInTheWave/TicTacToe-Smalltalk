@@ -38,8 +38,8 @@ Object subclass: State [
     ^over
   ]
 
-  over: value [
-    over := value
+  over: boolean  [
+    over := boolean
   ]
 
   "**
